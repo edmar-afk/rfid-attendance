@@ -5,18 +5,20 @@ import HistoryIcon from "@mui/icons-material/History";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 
 function Navigation() {
-  const baseGreen =
-    "group flex h-min items-center justify-center duration-300 rounded-lg font-semibold py-2 px-4 text-sm sm:text-base focus:outline-none";
+  const base =
+    "group flex items-center justify-center rounded-lg font-semibold py-2 px-4 text-sm sm:text-base transition-all duration-300 ease-in-out";
+
+  const inactive =
+    "bg-green-600 text-white border border-green-700 shadow-lg hover:bg-green-700";
+
+  const active =
+    "bg-white text-green-700 border-2 border-green-600 scale-95 shadow-2xl";
 
   return (
-    <div className="flex mt-24 justify-start gap-x-6 text-white px-20 mb-8">
+    <div className="flex mt-24 justify-start gap-x-6 px-20 mb-8">
       <NavLink
         to="/school-dashboard-statistics-444212345-capstone2026"
-        className={({ isActive }) =>
-          `${baseGreen} bg-green-500 text-white border-b-4 border-b-green-700
-          hover:opacity-95 hover:text-gray-100 active:bg-green-800 active:text-gray-300
-          ${isActive ? "shadow-2xl shadow-green-900/50" : "shadow-lg"}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         <GridViewIcon fontSize="small" className="mr-1" />
         Overview
@@ -24,11 +26,7 @@ function Navigation() {
 
       <NavLink
         to="/history-444212345-capstone2026"
-        className={({ isActive }) =>
-          `${baseGreen} bg-green-500 text-white border-b-4 border-b-green-700
-          hover:opacity-95 hover:text-gray-100 active:bg-green-800 active:text-gray-300
-          ${isActive ? "shadow-2xl shadow-green-900/50" : "shadow-lg"}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         <HistoryIcon fontSize="small" className="mr-1" />
         History Logs
@@ -36,11 +34,7 @@ function Navigation() {
 
       <NavLink
         to="/student-lists-444212345-capstone2026"
-        className={({ isActive }) =>
-          `${baseGreen} bg-white text-green-800 border border-green-500 border-b-4 border-b-green-400
-          hover:bg-gray-50 hover:text-green-900 active:bg-gray-100 active:text-green-600
-          ${isActive ? "shadow-2xl shadow-green-700/40" : "shadow"}`
-        }
+        className={({ isActive }) => `${base} ${isActive ? active : inactive}`}
       >
         <PeopleAltIcon fontSize="small" className="mr-1" />
         Student Lists

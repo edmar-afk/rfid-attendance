@@ -8,7 +8,7 @@ function Table({ title, subtitle }) {
       <div class="container w-full">
         <div class="bg-white rounded-xl shadow-md overflow-hidden">
           <div class="p-6 border-b border-gray-200">
-            <Header title={title} subtitle={subtitle} />
+            <Header title={title} subtitle={subtitle} studentLists={true}/>
 
             <Search />
           </div>

@@ -8,7 +8,7 @@ function History() {
       <Navigation />
       <Table
         title="History"
-        subtitle="Explore previously recorded student attendance data"
+        subtitle="Explore previously recorded student attendance data and more."
       />
     </div>
   );
