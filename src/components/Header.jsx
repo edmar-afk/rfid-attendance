@@ -1,5 +1,6 @@
 import React from "react";
-import AddIcon from "@mui/icons-material/Add";
+
+import AddStudentModal from "./studentsLists/AddStudentModal";
 
 function Header({ title, subtitle, studentLists }) {
   return (
@@ -11,10 +12,7 @@ function Header({ title, subtitle, studentLists }) {
 
       {studentLists && (
         <div class="mt-4 md:mt-0">
-          <button class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-lg transition duration-150 ease-in-out">
-            <AddIcon fontSize="small" />
-            Add Student
-          </button>
+          <AddStudentModal />
         </div>
       )}
     </div>

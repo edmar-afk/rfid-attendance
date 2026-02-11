@@ -28,10 +28,9 @@ function Search() {
       <div>
         <select class="border border-gray-300 rounded-lg px-4 py-2  w-full sm:w-auto">
           <option value="">All Departments</option>
-          <option value="engineering">Engineering</option>
-          <option value="design">Design</option>
-          <option value="marketing">Marketing</option>
-          <option value="sales">Sales</option>
+          <option value="engineering">SET</option>
+          <option value="design">STE</option>
+          <option value="marketing">SAFES</option>
         </select>
       </div>
     </div>

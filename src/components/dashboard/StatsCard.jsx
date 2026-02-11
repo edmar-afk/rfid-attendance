@@ -1,9 +1,28 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import FactCheckIcon from "@mui/icons-material/FactCheck";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import SmsIcon from "@mui/icons-material/Sms";
 
 function StatsCard() {
+  const [now, setNow] = useState(new Date());
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const formattedDateTime = new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    // timeZoneName: "short",
+  }).format(now);
+
   const stats = [
     {
       value: "50,000",
@@ -33,7 +52,7 @@ function StatsCard() {
       <div className="w-full bg-gradient-to-br from-blue-200 via-blue-100 to-green-100 p-8 lg:p-16 text-center shadow-sm">
         <div className="inline-block bg-white border border-gray-100 shadow-sm rounded-full px-4 py-1.5 mb-6">
           <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">
-            Jan. 31, 2026
+            {formattedDateTime}
           </span>
         </div>
 
