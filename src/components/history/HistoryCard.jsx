@@ -1,5 +1,11 @@
 import React from "react";
 
+const colorMap = {
+  green: "bg-green-500",
+  red: "bg-red-500",
+  blue: "bg-blue-500",
+};
+
 const timelineData = [
   {
     version: "Sample Student Name",
@@ -67,8 +73,7 @@ function HistoryCard() {
                           >
                             <div className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
-                                className={`h-1.5 w-1.5 rounded-full bg-${item.typeColor}-500`}
-                                aria-hidden="true"
+                                className={`h-1.5 w-1.5 rounded-full ${colorMap[item.typeColor]}`}
                               ></span>
                             </div>
                             <div className="ml-3.5 font-medium text-gray-900">
