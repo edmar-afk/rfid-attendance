@@ -6,11 +6,39 @@ import SmsIcon from "@mui/icons-material/Sms";
 function StatsCard() {
   const [now, setNow] = useState(new Date());
 
+  const [attendance, setAttendance] = useState(50000);
+  const [students, setStudents] = useState(5000);
+  const [sms, setSms] = useState(9000);
+
   useEffect(() => {
     const timer = setInterval(() => {
       setNow(new Date());
     }, 1000);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    let timeoutId;
+
+    const incrementRandomly = () => Math.floor(Math.random() * 5) + 1;
+
+    const poll = () => {
+      if (!isMounted) return;
+
+      setAttendance((prev) => prev + incrementRandomly());
+      setStudents((prev) => prev + incrementRandomly());
+      setSms((prev) => prev + incrementRandomly());
+
+      timeoutId = setTimeout(poll, 1000);
+    };
+
+    timeoutId = setTimeout(poll, 1000);
+
+    return () => {
+      isMounted = false;
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   const formattedDateTime = new Intl.DateTimeFormat(undefined, {
@@ -20,26 +48,25 @@ function StatsCard() {
     hour: "2-digit",
     minute: "2-digit",
     second: "2-digit",
-    // timeZoneName: "short",
   }).format(now);
 
   const stats = [
     {
-      value: "50,000",
+      value: attendance.toLocaleString(),
       title: "Attendance Records",
       description:
         "RFID scans automatically logged in real time, ensuring accurate and tamper-proof attendance tracking.",
       icon: <FactCheckIcon className="text-white" />,
     },
     {
-      value: "5,000",
+      value: students.toLocaleString(),
       title: "Registered Students",
       description:
         "Each student is uniquely identified through RFID, enabling fast and secure attendance validation.",
       icon: <PeopleAltIcon className="text-white" />,
     },
     {
-      value: "9,000",
+      value: sms.toLocaleString(),
       title: "SMS Alerts Sent",
       description:
         "Automatic SMS notifications sent to guardians and staff for real-time attendance updates.",
