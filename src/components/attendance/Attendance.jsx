@@ -9,6 +9,7 @@ function Attendance() {
   const [status, setStatus] = useState("idle");
   const [message, setMessage] = useState("Waiting for ID to scan...");
   const inputRef = useRef(null);
+  const [isTimeIn, setIsTimeIn] = useState(true);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -35,21 +36,43 @@ function Attendance() {
     }, 0);
   };
 
-  const processAttendance = async (rfidValue) => {
+  const processAttendance = async (rfidValue, isTimeIn) => {
     try {
       setStatus("loading");
       setMessage("Checking ID...");
 
-      await api.get(`/api/student-check/${rfidValue}/`);
+      const studentRes = await api.get(`/api/student-check/${rfidValue}/`);
+      const student = studentRes.data;
 
-      const response = await api.post(`/api/attendance/upload/${rfidValue}/`);
+      const endpoint = isTimeIn
+        ? `/api/attendance/time-in/${rfidValue}/`
+        : `/api/attendance/time-out/${rfidValue}/`;
+
+      const response = await api.post(endpoint);
 
       setStatus("success");
       setMessage(response.data.message || "Attendance Recorded");
+
+      const title = `${student.first_name} (${student.student_id})`;
+      const indicator = isTimeIn
+        ? "Attendance Checked In"
+        : "Attendance Checked Out";
+      const description = isTimeIn
+        ? `${student.first_name} has successfully timed in at ${new Date().toLocaleTimeString()}.`
+        : `${student.first_name} has successfully timed out at ${new Date().toLocaleTimeString()}.`;
+
+      await api.post("/api/histories/", {
+        title,
+        indicator,
+        description,
+      });
     } catch (error) {
       if (error.response && error.response.status === 404) {
         setStatus("invalid");
         setMessage("ID not matched");
+      } else if (error.response && error.response.status === 400) {
+        setStatus("invalid");
+        setMessage(error.response.data.error || "Already recorded");
       } else {
         setStatus("invalid");
         setMessage("Server error");
@@ -68,7 +91,7 @@ function Attendance() {
     setRfid(value);
 
     if (value.length === 10) {
-      processAttendance(value);
+      processAttendance(value, isTimeIn); // now reflects the Switch state
     }
   };
 
@@ -92,10 +115,8 @@ function Attendance() {
     <div>
       <section className="bg-[#10b981] pt-24">
         <main className="flex md:flex-row justify-center flex-col gap-[100px] md:gap-[40px] lg:gap-[100px] mx-auto w-full max-w-[1440px] min-w-[280px] py-8 px-4 lg:px-8">
-          <div className="max-w-[550px] mt-16">
-            <p className="text-xl text-gray-700 font-bold">
-              {formattedDateTime}
-            </p>
+          <div className="max-w-[550px]">
+            <p className="text-md text-white">{formattedDateTime}</p>
 
             <h2 className="text-[30px] leading-[48px] md:text-[50px] md:leading-[68px] mt-5 mb-16 text-white">
               RFID Attendance Monitoring System
@@ -123,7 +144,7 @@ function Attendance() {
             </p>
           </div>
 
-          <Cards rfid={rfid} />
+          <Cards rfid={rfid} isTimeIn={isTimeIn} setIsTimeIn={setIsTimeIn} />
         </main>
       </section>
     </div>

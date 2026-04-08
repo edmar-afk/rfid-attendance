@@ -38,7 +38,8 @@ function Table({ title, subtitle }) {
   const fetchStudents = async () => {
     try {
       const res = await api.get("/api/students/");
-      setStudents(res.data);
+      const sortedStudents = res.data.slice().sort((a, b) => b.id - a.id);
+      setStudents(sortedStudents);
     } catch (err) {
       console.error(err);
     }
@@ -57,6 +58,8 @@ function Table({ title, subtitle }) {
 
     if (result.isConfirmed) {
       try {
+        const student = students.find((s) => s.student_id === student_id);
+
         Swal.fire({
           title: "Deleting...",
           allowOutsideClick: false,
@@ -66,6 +69,13 @@ function Table({ title, subtitle }) {
         });
 
         await api.delete(`/api/students/delete/${student_id}/`);
+
+        await api.post("/api/histories/", {
+          title: student.first_name,
+          indicator: "Deleted Student Data",
+          description:
+            "A student has been removed from the system. Their RFID credentials and profile data have been deleted.",
+        });
 
         setStudents((prev) => prev.filter((s) => s.student_id !== student_id));
 

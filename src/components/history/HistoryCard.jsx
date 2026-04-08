@@ -1,54 +1,102 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import api from "../../assets/api";
+import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
+import AddIcon from "@mui/icons-material/Add";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AllInboxIcon from "@mui/icons-material/AllInbox";
 
 const colorMap = {
-  green: "bg-green-500",
-  red: "bg-red-500",
-  blue: "bg-blue-500",
+  "New Student": "bg-green-500",
+  "Deleted Student Data": "bg-red-500",
+  "Attendance Checked In": "bg-blue-500",
+  "Attendance Checked Out": "bg-green-500",
 };
 
-const timelineData = [
-  {
-    version: "Sample Student Name",
-    type: "New Student",
-    typeColor: "green",
-    time: "Jan. 31, 2026",
-    description: [
-      "A new student has been added to the system. Their profile page was created to manage RFID credentials and personalized attendance settings.",
-    ],
-  },
-  {
-    version: "Sample Student Name",
-    type: "Deleted Student",
-    typeColor: "red",
-    time: "Jan. 31, 2026",
-    description: [
-      "A student has been removed from the system. Their RFID credentials and profile data have been deleted.",
-    ],
-  },
-  {
-    version: "Sample Student Name",
-    type: "Attendance Checked",
-    typeColor: "blue",
-    time: "Jan. 31, 2026",
-    description: [
-      "A student's attendance has been checked and recorded in the system <b class='text-blue-600 underline'>10h ago</b>. Parents/Guardian will be notified of the attendance status via SMS.",
-    ],
-  },
-];
+const filterMap = {
+  "Time In": "Attendance Checked In",
+  "Time Out": "Attendance Checked Out",
+  Added: "New Student",
+  Deletions: "Deleted Student Data",
+};
+
+const iconMap = {
+  All: <AllInboxIcon />,
+  "Time In": <LoginIcon />,
+  "Time Out": <LogoutIcon />,
+  Added: <AddIcon />,
+  Deletions: <DeleteIcon />,
+};
 
 function HistoryCard() {
+  const [histories, setHistories] = useState([]);
+  const [filter, setFilter] = useState("All");
+
+  const fetchHistories = async () => {
+    try {
+      const res = await api.get("/api/histories/");
+      setHistories(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchHistories();
+  }, []);
+
+  const formatDate = (date) => {
+    const d = new Date(date);
+    const formattedDate = d.toLocaleDateString("en-US", {
+      month: "long",
+      day: "2-digit",
+      year: "numeric",
+    });
+    let formattedTime = d.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+    formattedTime = formattedTime.replace("AM", "am").replace("PM", "pm");
+    return `${formattedDate} - ${formattedTime}`;
+  };
+
+  const filteredHistories =
+    filter === "All"
+      ? histories
+      : histories.filter((h) => h.indicator === filterMap[filter]);
+
+  const tags = ["All", "Time In", "Time Out", "Added", "Deletions"];
+
   return (
-    <div className="bg-white h-full">
+    <div className="bg-white h-full relative">
+      <div className="sticky top-0 left-0 py-4 ml-8 bg-white z-50">
+        <div className="flex w-full md:max-w-3xl mx-4 rounded shadow">
+          {tags.map((tag, idx) => (
+            <p
+              key={idx}
+              onClick={() => setFilter(tag)}
+              className={`flex-1 flex justify-center items-center gap-2 font-medium px-5 py-2 border cursor-pointer ${
+                filter === tag
+                  ? "bg-green-500 text-white border-green-500"
+                  : "bg-white text-gray-800 border-gray-200 hover:bg-gray-100"
+              } ${idx === 0 ? "rounded-l" : ""} ${
+                idx === tags.length - 1 ? "rounded-r" : ""
+              }`}
+            >
+              {tag} {iconMap[tag]}
+            </p>
+          ))}
+        </div>
+      </div>
       <div className="w-full p-8">
         <div className="flow-root">
           <ul className="-mb-8">
-            {timelineData.map((item, index) => (
+            {filteredHistories.map((item, index) => (
               <li key={index}>
                 <div className="relative pb-8 h-28">
-                  <span
-                    className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"
-                    aria-hidden="true"
-                  ></span>
+                  <span className="absolute top-5 left-5 -ml-px h-full w-0.5 bg-gray-200"></span>
+
                   <div className="relative flex items-start space-x-3">
                     <div>
                       <div className="relative px-1">
@@ -57,46 +105,40 @@ function HistoryCard() {
                         </div>
                       </div>
                     </div>
+
                     <div className="min-w-0 flex-1 py-0">
                       <div className="text-md text-gray-500">
                         <div>
-                          <a
-                            href="#"
-                            className="font-medium text-gray-900 mr-2"
-                          >
-                            {item.version}
-                          </a>
+                          <span className="font-medium text-gray-900 mr-2">
+                            {item.title}
+                          </span>
 
-                          <a
-                            href="#"
-                            className="my-0.5 relative inline-flex items-center bg-white rounded-full border border-gray-300 px-3 py-0.5 text-sm"
-                          >
-                            <div className="absolute flex-shrink-0 flex items-center justify-center">
+                          <span className="my-0.5 relative inline-flex items-center bg-white rounded-full border border-gray-300 px-3 py-0.5 text-sm">
+                            <span className="absolute flex-shrink-0 flex items-center justify-center">
                               <span
-                                className={`h-1.5 w-1.5 rounded-full ${colorMap[item.typeColor]}`}
+                                className={`h-1.5 w-1.5 rounded-full ${
+                                  colorMap[item.indicator] || "bg-gray-400"
+                                }`}
                               ></span>
-                            </div>
-                            <div className="ml-3.5 font-medium text-gray-900">
-                              {item.type}
-                            </div>
-                          </a>
+                            </span>
+
+                            <span className="ml-3.5 font-medium text-gray-900">
+                              {item.indicator}
+                            </span>
+                          </span>
                         </div>
+
                         <span className="whitespace-nowrap text-sm">
-                          {item.time}
+                          {formatDate(item.date)}
                         </span>
                       </div>
+
                       <div className="mt-2 text-gray-700">
-                        <p>
-                          {item.description.map((desc, i) => (
-                            <span key={i}>
-                              -{" "}
-                              <span
-                                dangerouslySetInnerHTML={{ __html: desc }}
-                              />
-                              <br />
-                            </span>
-                          ))}
-                        </p>
+                        <p
+                          dangerouslySetInnerHTML={{
+                            __html: `- ${item.description}`,
+                          }}
+                        />
                       </div>
                     </div>
                   </div>

@@ -1,31 +1,13 @@
 import React, { useEffect, useState } from "react";
 import attendanceImg from "../../assets/images/students/attendance.png";
 
-function Switch({ onTimeIn, onTimeOut }) {
-  const [isTimeIn, setIsTimeIn] = useState(false);
+function Switch({ isTimeIn, onTimeIn, onTimeOut }) {
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTime(now);
-
-      const hour = now.getHours();
-
-      if (hour >= 7 && hour < 12) {
-        setIsTimeIn(true);
-      } else if (hour === 12) {
-        setIsTimeIn(false);
-      } else if (hour >= 13) {
-        setIsTimeIn(true);
-      } else {
-        setIsTimeIn(false);
-      }
-    };
-
+    const updateTime = () => setTime(new Date());
     updateTime();
     const interval = setInterval(updateTime, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
@@ -45,7 +27,6 @@ function Switch({ onTimeIn, onTimeOut }) {
     } else {
       onTimeIn && onTimeIn();
     }
-    setIsTimeIn(!isTimeIn);
   };
 
   return (

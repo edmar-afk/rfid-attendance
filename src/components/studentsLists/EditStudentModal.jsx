@@ -75,7 +75,7 @@ function EditStudentModal({ open, handleClose, student, refresh }) {
         setIdExists(res.data.exists);
       } catch (err) {
         setIdExists(false);
-        console.log(err)
+        console.log(err);
       } finally {
         setChecking(false);
       }
@@ -196,6 +196,7 @@ function EditStudentModal({ open, handleClose, student, refresh }) {
           value={form.department}
           onChange={handleChange}
           margin="normal"
+          sx={{ display: "none" }}
         />
 
         <TextField
@@ -214,6 +215,7 @@ function EditStudentModal({ open, handleClose, student, refresh }) {
           value={form.status}
           onChange={handleChange}
           margin="normal"
+          sx={{ display: "none" }}
         />
 
         <Button

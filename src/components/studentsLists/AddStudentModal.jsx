@@ -64,6 +64,13 @@ function AddStudentModal() {
 
       await api.post("/api/students/upload/", data);
 
+      await api.post("/api/histories/", {
+        title: formData.first_name,
+        indicator: "New Student",
+        description:
+          "A new student has been added to the system. Their profile page was created to manage RFID credentials and personalized attendance settings.",
+      });
+
       setOpen(false);
       window.location.reload();
     } catch (error) {
