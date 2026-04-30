@@ -189,8 +189,12 @@ function AddStudentModal() {
                         onChange={handleChange}
                         className="w-full border border-gray-300 rounded px-3 py-2"
                       >
-                        <option value="BSIT">BSIT</option>
-                        <option value="BTVLED">BTVLED</option>
+                        <option value="Computer System & Data Security">Computer System & Data Security</option>
+                        <option value="Teaching Common Competencies in HE">Teaching Common Competencies in HE</option>
+                        <option value="Technology Research 2">Technology Research 2</option>
+                        <option value="Teaching Common Competencies in ICT Network Admin & Maintenance">Teaching Common Competencies in ICT Network Admin & Maintenance</option>
+                        <option value="Capstone Project 2">Capstone Project 2</option>
+                        <option value="Computer System Servicing NC II Data Management 2">Computer System Servicing NC II Data Management 2</option>
                       </select>
                     </div>
 

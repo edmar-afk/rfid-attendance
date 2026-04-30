@@ -184,9 +184,20 @@ function EditStudentModal({ open, handleClose, student, refresh }) {
           SelectProps={{ native: true }}
         >
           <option value=""></option>
-          <option value="BSIT">BSIT</option>
-          <option value="BSCRIM">BSCRIM</option>
-          <option value="BTVLED">BTVLED</option>
+          <option value="Computer System & Data Security">
+            Computer System & Data Security
+          </option>
+          <option value="Teaching Common Competencies in HE">
+            Teaching Common Competencies in HE
+          </option>
+          <option value="Technology Research 2">Technology Research 2</option>
+          <option value="Teaching Common Competencies in ICT Network Admin & Maintenance">
+            Teaching Common Competencies in ICT Network Admin & Maintenance
+          </option>
+          <option value="Capstone Project 2">Capstone Project 2</option>
+          <option value="Computer System Servicing NC II Data Management 2">
+            Computer System Servicing NC II Data Management 2
+          </option>
         </TextField>
 
         <TextField

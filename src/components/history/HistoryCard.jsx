@@ -5,6 +5,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import AllInboxIcon from "@mui/icons-material/AllInbox";
+import GenerateReport from "./GenerateReport";
 
 const colorMap = {
   "New Student": "bg-green-500",
@@ -71,7 +72,7 @@ function HistoryCard() {
   return (
     <div className="bg-white h-full relative">
       <div className="sticky top-0 left-0 py-4 ml-8 bg-white z-50">
-        <div className="flex w-full md:max-w-3xl mx-4 rounded shadow">
+        <div className="flex w-full md:max-w-5xl gap-2 mx-4 rounded shadow">
           {tags.map((tag, idx) => (
             <p
               key={idx}
@@ -87,6 +88,7 @@ function HistoryCard() {
               {tag} {iconMap[tag]}
             </p>
           ))}
+          <GenerateReport/>
         </div>
       </div>
       <div className="w-full p-8">
