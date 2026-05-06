@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import React, { useState } from "react";
 import { Modal, Box, Button, IconButton } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
@@ -11,12 +12,33 @@ import autoTable from "jspdf-autotable";
 function GenerateReport() {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [action, setAction] = useState(null);
 
   const [fileType, setFileType] = useState("xlsx");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
-  // FORMAT TIME → 12-HOUR AM/PM
+  const [officeEmail, setOfficeEmail] = useState("cagapetrisha57@gmail.com");
+
+  const officeEmails = [
+    {
+      label: "cagapetrisha57@gmail.com",
+      value: "cagapetrisha57@gmail.com",
+    },
+    {
+      label: "corazareymark25@gmail.com",
+      value: "corazareymark25@gmail.com",
+    },
+    {
+      label: "corazareymark5@gmail.com",
+      value: "corazareymark5@gmail.com",
+    },
+    {
+      label: "apasneniajane@gmail com",
+      value: "apasneniajane@gmail com",
+    },
+  ];
+
   const formatTime = (timeStr) => {
     if (!timeStr) return "";
 
@@ -32,40 +54,44 @@ function GenerateReport() {
     });
   };
 
-  // FILE NAME
   const getFileName = (ext) => {
     const start = startDate || "start";
     const end = endDate || "end";
+
     return `Attendance_${start}_to_${end}.${ext}`;
   };
 
-  // EXCEL
   const generateExcel = (rows) => {
     const worksheet = XLSX.utils.json_to_sheet(rows);
     const workbook = XLSX.utils.book_new();
+
     XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
 
     XLSX.writeFile(workbook, getFileName("xlsx"));
   };
 
-  // CSV
   const generateCSV = (rows) => {
     const worksheet = XLSX.utils.json_to_sheet(rows);
+
     const csv = XLSX.utils.sheet_to_csv(worksheet);
 
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const blob = new Blob([csv], {
+      type: "text/csv;charset=utf-8;",
+    });
 
     const link = document.createElement("a");
+
     link.href = URL.createObjectURL(blob);
     link.download = getFileName("csv");
+
     link.click();
   };
 
-  // PDF
   const generatePDF = (rows) => {
     const doc = new jsPDF();
 
     doc.setFontSize(16);
+
     doc.text("Attendance Report", 14, 15);
 
     autoTable(doc, {
@@ -83,7 +109,6 @@ function GenerateReport() {
     doc.save(getFileName("pdf"));
   };
 
-  // GENERATE REPORT
   const handleGenerate = async () => {
     try {
       setLoading(true);
@@ -95,9 +120,7 @@ function GenerateReport() {
         },
       });
 
-      const data = res.data;
-
-      const rows = data.map((item) => ({
+      const rows = res.data.map((item) => ({
         student_id: item.student_id,
         name: `${item.first_name} ${item.last_name}`,
         date: item.date,
@@ -106,19 +129,121 @@ function GenerateReport() {
       }));
 
       if (fileType === "xlsx") generateExcel(rows);
+
       if (fileType === "csv") generateCSV(rows);
+
       if (fileType === "pdf") generatePDF(rows);
 
       setOpen(false);
     } catch (error) {
       console.log(error);
+
       alert("Failed to generate report");
     } finally {
       setLoading(false);
     }
   };
 
-  const isFormValid = fileType && startDate && endDate;
+  const handleSendReportByMail = async () => {
+    try {
+      setLoading(true);
+
+      const res = await api.get("/api/filter-attendance/", {
+        params: {
+          date_from: startDate,
+          date_to: endDate,
+        },
+      });
+
+      const rows = res.data.map((item) => ({
+        student_id: item.student_id,
+        name: `${item.first_name} ${item.last_name}`,
+        date: item.date,
+        time_in: formatTime(item.time_in),
+        time_out: formatTime(item.time_out),
+      }));
+
+      let fileBlob;
+      let fileName;
+
+      if (fileType === "xlsx") {
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+
+        const workbook = XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Attendance");
+
+        const buffer = XLSX.write(workbook, {
+          type: "array",
+          bookType: "xlsx",
+        });
+
+        fileBlob = new Blob([buffer], {
+          type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        });
+
+        fileName = getFileName("xlsx");
+      }
+
+      if (fileType === "pdf") {
+        const doc = new jsPDF();
+
+        doc.text("Attendance Report", 14, 15);
+
+        autoTable(doc, {
+          startY: 22,
+          head: [["Student ID", "Name", "Date", "Time In", "Time Out"]],
+          body: rows.map((item) => [
+            item.student_id,
+            item.name,
+            item.date,
+            item.time_in,
+            item.time_out,
+          ]),
+        });
+
+        fileBlob = doc.output("blob");
+
+        fileName = getFileName("pdf");
+      }
+
+      if (fileType === "csv") {
+        const worksheet = XLSX.utils.json_to_sheet(rows);
+
+        const csv = XLSX.utils.sheet_to_csv(worksheet);
+
+        fileBlob = new Blob([csv], {
+          type: "text/csv;charset=utf-8;",
+        });
+
+        fileName = getFileName("csv");
+      }
+
+      const formData = new FormData();
+
+      formData.append("file", fileBlob, fileName);
+
+      formData.append("email", officeEmail);
+
+      await api.post("/api/send-report-email/", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      alert(`Report submitted to ${officeEmail}`);
+
+      setOpen(false);
+    } catch (error) {
+      console.log(error);
+
+      alert("Failed to send report");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const isFormValid = fileType && startDate && endDate && officeEmail;
 
   return (
     <>
@@ -141,13 +266,9 @@ function GenerateReport() {
           }}
         >
           <div className="w-full">
-            {/* HEADER */}
             <div className="flex items-center justify-between px-7 py-5 bg-gradient-to-r from-green-600 to-emerald-800 text-white">
               <div>
                 <h2 className="text-2xl font-bold">Generate Report</h2>
-                <p className="text-sm text-green-100">
-                  Export Attendance records in seconds
-                </p>
               </div>
 
               <IconButton onClick={() => setOpen(false)}>
@@ -155,12 +276,9 @@ function GenerateReport() {
               </IconButton>
             </div>
 
-            {/* BODY */}
             <div className="p-7 space-y-6 bg-gray-50">
-              {/* DATE RANGE */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-300">
-                <label className="text-sm font-semibold text-gray-700 mb-4 flex items-center gap-2">
-                  <CalendarMonthIcon fontSize="small" />
+              <div className="bg-white rounded-2xl p-5 border">
+                <label className="text-sm font-semibold mb-4 block">
                   Select Date Range
                 </label>
 
@@ -169,55 +287,79 @@ function GenerateReport() {
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="border border-gray-300 rounded-xl px-4 py-3"
+                    className="border rounded-xl px-4 py-3"
                   />
 
                   <input
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="border border-gray-300 rounded-xl px-4 py-3"
+                    className="border rounded-xl px-4 py-3"
                   />
                 </div>
               </div>
 
-              {/* EXPORT FORMAT */}
-              <div className="bg-white rounded-2xl p-5 shadow-sm border border-gray-300">
-                <label className="text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                  <InsertDriveFileIcon fontSize="small" />
+              <div className="bg-white rounded-2xl p-5 border">
+                <label className="text-sm font-semibold mb-2 block">
                   Export Format
                 </label>
 
                 <select
                   value={fileType}
                   onChange={(e) => setFileType(e.target.value)}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3"
+                  className="w-full border rounded-xl px-4 py-3"
                 >
-                  <option value="xlsx">Excel (.xlsx)</option>
-                  <option value="pdf">PDF (.pdf)</option>
-                  <option value="csv">CSV (.csv)</option>
+                  <option value="xlsx">Excel</option>
+                  <option value="pdf">PDF</option>
+                  <option value="csv">CSV</option>
                 </select>
               </div>
 
-              {/* ACTIONS */}
-              <div className="flex justify-end gap-3 pt-2">
-                <button
-                  onClick={() => setOpen(false)}
-                  className="px-6 py-3 rounded-xl bg-gray-200"
+              <div className="bg-white rounded-2xl p-5 border">
+                <label className="text-sm font-semibold mb-2 block">
+                  Select Email
+                </label>
+
+                <select
+                  value={officeEmail}
+                  onChange={(e) => setOfficeEmail(e.target.value)}
+                  className="w-full border rounded-xl px-4 py-3"
                 >
-                  Cancel
+                  {officeEmails.map((office) => (
+                    <option key={office.value} value={office.value}>
+                      {office.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setAction("generate");
+
+                    handleGenerate();
+                  }}
+                  disabled={loading || !isFormValid}
+                  className="px-6 py-3 rounded-xl text-white bg-green-600"
+                >
+                  {loading && action === "generate"
+                    ? "Generating..."
+                    : "Generate Report"}
                 </button>
 
                 <button
-                  onClick={handleGenerate}
+                  onClick={() => {
+                    setAction("email");
+
+                    handleSendReportByMail();
+                  }}
                   disabled={loading || !isFormValid}
-                  className={`px-6 py-3 rounded-xl text-white ${
-                    loading || !isFormValid
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-green-600"
-                  }`}
+                  className="px-6 py-3 rounded-xl text-white bg-blue-600"
                 >
-                  {loading ? "Generating..." : "Generate Report"}
+                  {loading && action === "email"
+                    ? "Sending..."
+                    : "Submit to Office"}
                 </button>
               </div>
             </div>

@@ -173,7 +173,7 @@ function EditStudentModal({ open, handleClose, student, refresh }) {
           <option value="4th Year">4th Year</option>
         </TextField>
 
-        <TextField
+        {/* <TextField
           select
           fullWidth
           label="Course"
@@ -198,7 +198,7 @@ function EditStudentModal({ open, handleClose, student, refresh }) {
           <option value="Computer System Servicing NC II Data Management 2">
             Computer System Servicing NC II Data Management 2
           </option>
-        </TextField>
+        </TextField> */}
 
         <TextField
           fullWidth

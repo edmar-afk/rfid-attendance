@@ -1,11 +1,12 @@
-/* eslint-disable no-unused-vars */
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "../login.module.css";
 import logo from "../assets/images/logo.jpg";
+import ForgotPassword from "../components/ForgotPassword";
+import api from "../assets/api";
 
 export default function Login() {
-  const [form, setForm] = useState("login");
+  const [form] = useState("login");
   const [loading, setLoading] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -13,19 +14,40 @@ export default function Login() {
   const navigate = useNavigate();
   const isLogin = form === "login";
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-
+    try {
       if (username === "admin" && password === "admin123") {
+        localStorage.setItem("role", "admin");
         navigate("/school-dashboard-statistics-444212345-capstone2026");
-      } else {
-        alert("Invalid username or password");
+        return;
       }
-    }, 1000);
+
+      const response = await api.get("/api/sekyo/");
+      const sekyos = response.data;
+
+      const matchedSekyo = sekyos.find(
+        (item) => item.phone_number === username && password === "security123",
+      );
+
+      if (matchedSekyo) {
+        localStorage.setItem("role", "security");
+        localStorage.setItem("sekyo_name", matchedSekyo.name);
+        localStorage.setItem("sekyo_number", matchedSekyo.phone_number);
+
+        navigate("/school-dashboard-statistics-444212345-capstone2026");
+
+        return;
+      }
+
+      alert("Invalid username or password");
+    } catch {
+      alert("Login failed.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -33,9 +55,11 @@ export default function Login() {
       <div className={styles["auth-container"]}>
         <div className={styles["form-header"]}>
           <img src={logo} alt="Logo" className={styles.logo} />
+
           <h1 className="text-lg font-semibold">
             RFID ATTENDANCE MONITORING SYSTEM
           </h1>
+
           <p className="text-md text-gray-400">Login First for Security</p>
         </div>
 
@@ -45,7 +69,10 @@ export default function Login() {
           <div className={styles["form-content"]}>
             <form onSubmit={handleSubmit}>
               <div className={styles["form-group"]}>
-                <label className={styles["form-label"]}>Username</label>
+                <label className={styles["form-label"]}>
+                  Username or Mobile Number
+                </label>
+
                 <input
                   type="text"
                   className={styles["form-input"]}
@@ -58,6 +85,7 @@ export default function Login() {
 
               <div className={styles["form-group"]}>
                 <label className={styles["form-label"]}>Password</label>
+
                 <input
                   type="password"
                   className={styles["form-input"]}
@@ -66,6 +94,8 @@ export default function Login() {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
+
+                <ForgotPassword />
               </div>
 
               <button

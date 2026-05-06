@@ -4,8 +4,11 @@ import GridViewIcon from "@mui/icons-material/GridView";
 import HistoryIcon from "@mui/icons-material/History";
 import PeopleAltIcon from "@mui/icons-material/PeopleAlt";
 import LogoutIcon from "@mui/icons-material/Logout";
+import SecurityGuardTable from "./sekyo/SecurityGuardTable";
 
 function Navigation() {
+  const role = localStorage.getItem("role");
+
   const base =
     "group flex items-center justify-center rounded-lg font-semibold py-2 px-4 text-sm sm:text-base transition-all duration-300 ease-in-out";
 
@@ -50,9 +53,17 @@ function Navigation() {
           <PeopleAltIcon fontSize="small" className="mr-1" />
           Student Lists
         </NavLink>
+
+        {role === "admin" && <SecurityGuardTable />}
       </div>
 
-      <NavLink to="/" className={`${base} ${logoutStyle}`}>
+      <NavLink
+        to="/"
+        className={`${base} ${logoutStyle}`}
+        onClick={() => {
+          localStorage.removeItem("role");
+        }}
+      >
         <LogoutIcon fontSize="small" className="mr-1" />
         Logout
       </NavLink>

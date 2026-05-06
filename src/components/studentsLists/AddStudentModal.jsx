@@ -181,7 +181,7 @@ function AddStudentModal() {
                     className="mt-2"
                   />
                   <div className="flex flex-row gap-2">
-                    <div className="flex-1 mt-2">
+                    {/* <div className="flex-1 mt-2">
                       <label className="block mb-1 text-gray-700">Course</label>
                       <select
                         name="course"
@@ -196,7 +196,7 @@ function AddStudentModal() {
                         <option value="Capstone Project 2">Capstone Project 2</option>
                         <option value="Computer System Servicing NC II Data Management 2">Computer System Servicing NC II Data Management 2</option>
                       </select>
-                    </div>
+                    </div> */}
 
                     <div className="flex-1 mt-2">
                       <label className="block mb-1 text-gray-700">

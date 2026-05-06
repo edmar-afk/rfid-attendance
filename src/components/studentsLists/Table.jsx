@@ -5,6 +5,7 @@ import BadgeIcon from "@mui/icons-material/Badge";
 import api from "../../assets/api";
 import Swal from "sweetalert2";
 import EditStudentModal from "./EditStudentModal";
+import AdminOnly from "./AdminOnly";
 const BASE_URL = import.meta.env.VITE_API_URL;
 
 function Table({ title, subtitle }) {
@@ -12,18 +13,20 @@ function Table({ title, subtitle }) {
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedCourse, setSelectedCourse] = useState("");
+  const [selectedYearLevel, setSelectedYearLevel] = useState("");
+  const role = localStorage.getItem("role");
+  const isSecurity = role === "security";
 
   const filteredStudents = students.filter((student) => {
     const matchesName =
       student.first_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       student.student_id.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesCourse = selectedCourse
-      ? student.course === selectedCourse
+    const matchesYear = selectedYearLevel
+      ? String(student.year_level) === String(selectedYearLevel)
       : true;
 
-    return matchesName && matchesCourse;
+    return matchesName && matchesYear;
   });
   const handleOpenEdit = (student) => {
     setSelectedStudent(student);
@@ -106,115 +109,123 @@ function Table({ title, subtitle }) {
     <div className="w-full bg-gray-100 flex items-center justify-center h-full p-2">
       <div className="container w-full">
         <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="p-6 border-b border-gray-200">
-            <Header title={title} subtitle={subtitle} studentLists={true} />
-            <Search
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              selectedCourse={selectedCourse}
-              setSelectedCourse={setSelectedCourse}
-            />
-          </div>
+          {isSecurity ? (
+            <AdminOnly />
+          ) : (
+            <>
+              <div className="p-6 border-b border-gray-200">
+                <Header title={title} subtitle={subtitle} studentLists={true} />
+                <Search
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                  selectedYearLevel={selectedYearLevel}
+                  setSelectedYearLevel={setSelectedYearLevel}
+                />
+              </div>
 
-          <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Name
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Parent/Guardian
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Year Lvl - Course
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
-                    Status
-                  </th>
-                  <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Name
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Parent/Guardian
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Year Lvl
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">
+                        Status
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
 
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredStudents.map((student) => (
-                  <tr
-                    key={student.student_id}
-                    className="hover:bg-gray-50 transition-colors duration-150"
-                  >
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="flex flex-row items-center">
-                        <div className="h-10 w-10 overflow-hidden flex items-center justify-center rounded-full border border-green-300 bg-green-100">
-                          {student.student_picture ? (
-                            <img
-                              src={`${BASE_URL}${student.student_picture}`}
-                              alt="student"
-                              className="w-full h-full object-cover rounded-full"
-                            />
-                          ) : (
-                            <BadgeIcon className="text-green-600" />
-                          )}
-                        </div>
-                        <div className="ml-4">
-                          <div className="text-sm font-bold text-gray-900">
-                            {student.first_name}
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {filteredStudents.map((student) => (
+                      <tr key={student.student_id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="flex flex-row items-center">
+                            <div className="h-10 w-10 overflow-hidden flex items-center justify-center rounded-full border border-green-300 bg-green-100">
+                              {student.student_picture ? (
+                                <img
+                                  src={`${BASE_URL}${student.student_picture}`}
+                                  alt="student"
+                                  className="w-full h-full object-cover rounded-full"
+                                />
+                              ) : (
+                                <BadgeIcon className="text-green-600" />
+                              )}
+                            </div>
+
+                            <div className="ml-4">
+                              <div className="text-sm font-bold text-gray-900">
+                                {student.first_name}
+                              </div>
+                              <div className="text-sm text-gray-500">
+                                ID: {student.student_id}
+                              </div>
+                            </div>
                           </div>
-                          <div className="text-sm text-gray-500">
-                            ID: {student.student_id}
+                        </td>
+
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 flex flex-col">
+                            <p className="font-bold">
+                              {student.parent_contact}
+                            </p>
+                            <p className="text-gray-500 text-xs">
+                              Parent Contact
+                            </p>
                           </div>
-                        </div>
-                      </div>
-                    </td>
+                        </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900 flex flex-col">
-                        <p className="font-bold">{student.parent_contact}</p>
-                        <p className="text-gray-500 text-xs">Parent Contact</p>
-                      </div>
-                    </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {student.year_level}
+                        </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm text-gray-900">
-                        {student.year_level} - {student.course}
-                      </div>
-                    </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                            {student.status}
+                          </span>
+                        </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="px-2 inline-flex text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                        {student.status}
-                      </span>
-                    </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                          <button
+                            onClick={() => handleOpenEdit(student)}
+                            className="text-blue-600 hover:text-blue-900 mr-3"
+                          >
+                            Edit
+                          </button>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <button
-                        onClick={() => handleOpenEdit(student)}
-                        className="text-blue-600 hover:text-blue-900 mr-3"
-                      >
-                        Edit
-                      </button>
+                          <button
+                            onClick={() => handleDelete(student.student_id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            Delete
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
 
-                      <button
-                        onClick={() => handleDelete(student.student_id)}
-                        className="text-red-600 hover:text-red-900"
-                      >
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
-            <p className="text-sm text-gray-700">
-              Showing
-              <span className="font-medium ml-1">{students.length}</span>{" "}
-              results
-            </p>
-          </div>
+              <div className="bg-white px-4 py-3 border-t border-gray-200 sm:px-6">
+                <p className="text-sm text-gray-700">
+                  Showing
+                  <span className="font-medium ml-1">
+                    {students.length}
+                  </span>{" "}
+                  results
+                </p>
+              </div>
+            </>
+          )}
         </div>
       </div>
 

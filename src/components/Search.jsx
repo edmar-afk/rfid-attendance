@@ -3,8 +3,8 @@ import React from "react";
 function Search({
   searchTerm,
   setSearchTerm,
-  selectedCourse,
-  setSelectedCourse,
+  selectedYearLevel,
+  setSelectedYearLevel,
 }) {
   return (
     <div className="mt-6 flex flex-col sm:flex-row gap-4">
@@ -32,16 +32,18 @@ function Search({
           placeholder="Search students..."
         />
       </div>
+
       <div>
         <select
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)}
+          value={selectedYearLevel}
+          onChange={(e) => setSelectedYearLevel(e.target.value)}
           className="border border-gray-300 rounded-lg px-4 py-2 w-full sm:w-auto"
         >
-          <option value="">All Course</option>
-          <option value="BSIT">BSIT</option>
-          <option value="STE">STE</option>
-          <option value="SAFES">SAFES</option>
+          <option value="">All Year Level</option>
+          <option value="1st Year">1st Year</option>
+          <option value="2nd Year">2nd Year</option>
+          <option value="3rd Year">3rd Year</option>
+          <option value="4th Year">4th Year</option>
         </select>
       </div>
     </div>
